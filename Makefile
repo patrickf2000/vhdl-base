@@ -1,8 +1,7 @@
 # The files
 FILES		= src/or.vhdl src/and.vhdl src/not.vhdl
 SIMDIR		= sim
-SIMTOP		= gates_tb
-SIMFILES	= test/gates_tb.vhdl
+SIMFILES	= test/and_tb.vhdl test/gates_tb.vhdl
 
 # GHDL
 GHDL_CMD	= ghdl
@@ -17,16 +16,17 @@ VIEW_CMD        = /usr/bin/gtkwave
 all:
 	make compile
 	make run
-	make view
 
 compile:
 	mkdir -p sim
 	ghdl -a $(GHDL_FLAGS) $(GHDL_WORKDIR) $(FILES)
 	ghdl -a $(GHDL_FLAGS) $(GHDL_WORKDIR) $(SIMFILES)
-	ghdl -e $(GHDL_FLAGS) $(GHDL_WORKDIR) $(SIMTOP)
+	ghdl -e $(GHDL_FLAGS) $(GHDL_WORKDIR) gates_tb
+	ghdl -e $(GHDL_FLAGS) $(GHDL_WORKDIR) and_tb
 
 run:
-	ghdl -r $(GHDL_FLAGS) $(GHDL_WORKDIR) $(SIMTOP) $(GHDL_STOP) --wave=sim/wave.ghw
+	ghdl -r $(GHDL_FLAGS) $(GHDL_WORKDIR) gates_tb $(GHDL_STOP) --wave=sim/wave.ghw
+	ghdl -r $(GHDL_FLAGS) $(GHDL_WORKDIR) and_tb
 
 view:
 	gtkwave sim/wave.ghw
