@@ -7,47 +7,59 @@ end and_tb;
 architecture behavior of and_tb is
     -- Declare our component
     component AND2
-        port(A, B : in std_logic; F : out std_logic);
+        port(clk, A, B : in std_logic; F : out std_logic);
     end component;
     
     -- Bind to the component
-    for AND2_0: AND2 use entity work.AND2;
-    signal A, B, F : std_logic;
+    signal clk, A, B, F : std_logic := '0';
+    
+    -- Clock period definitions
+    constant clk_period : time := 10 ns;
 begin
     -- Initialize component
-    AND2_0: AND2 port map(A => A, B => B, F => F);
+    uut: AND2 port map(clk => clk, A => A, B => B, F => F);
     
-    process
-        type pattern_type is record
-            A, B : std_logic;
-            F : std_logic;
-        end record;
-        
-        -- Put your patterns here
-        type pattern_array is array (natural range <>) of pattern_type;
-        constant patterns: pattern_array := (
-            ( '0', '0', '0' ),
-            ( '0', '1', '0' ),
-            ( '1', '0', '0' ),
-            ( '1', '1', '1' )
-            );
+    -- Clock process definitions
+    I_clk_process : process
     begin
+        clk <= '0';
+        wait for clk_period/2;
+        clk <= '1';
+        wait for clk_period/2;
+    end process;
+ 
+    -- Test process
+    stim_proc: process
+    begin
+        -- hold reset state for 100 ns.
+        wait for 100 ns;  
+
+        wait for clk_period*10;
         
-        -- Verify each pattern
-        for i in patterns'range loop
-            A <= patterns(i).A;
-            B <= patterns(i).B;
-            wait for 1 ns;
+        for i in 0 to 3 loop
+            A <= '0';
+            B <= '0';
+            wait for clk_period;
             
-            assert F = patterns(i).F
-                report "Test failed." severity error;
-            assert false report "" severity note;
+            A <= '0';
+            B <= '1';
+            wait for clk_period;
+            
+            A <= '1';
+            B <= '0';
+            wait for clk_period;
+            
+            A <= '1';
+            B <= '1';
+            wait for clk_period;
+            
+            A <= '0';
+            B <= '0';
+            wait for clk_period;
         end loop;
         
-        assert false report "" severity note;
-        assert false report "Test completed." severity note;
-        assert false report "" severity note;
         wait;
         
     end process;
 end architecture;
+
